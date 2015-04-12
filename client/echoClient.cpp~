@@ -14,8 +14,7 @@ int ClientTCP::workClientTCP(){
 		cout << "Введите данные, для завершения ввода введите '$': ";
 		getline(cin, data, '$');
 		char* buffer = new char[data.length()];
-    		strcpy(buffer, data.c_str());
-		dataSend(getSockFD(), buffer);
+    		strcpy(buffer, data.c_str());dataSend(getSockFD(), buffer);
 		dataReceive(getSockFD(), "TCP");
 		cout << "Продолжить отправку сообщений? (yes/no): " << endl;
 		cin >> check;
