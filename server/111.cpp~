@@ -1,0 +1,71 @@
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include <vector>
+
+using namespace std;
+int main (void){
+	const unsigned short int PORT = 2504;
+	const int MAXCON = 10;
+	char buffer[1024];
+	//создание сокета.
+	int sockFD = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (-1 == sockFD){
+		perror("I can\'t create a socket!");
+		exit(EXIT_FAILURE);
+	}
+	//структура с параметрами адреса.
+	struct sockaddr_in sAddr;
+	memset(&sAddr, 0, sizeof(sAddr));
+	sAddr.sin_family = PF_INET;
+	sAddr.sin_port = htons(PORT);
+	sAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	socklen_t fromlen = sizeof(sAddr); 
+	//связывание сокета с адресом.
+	if (-1 == bind(sockFD, (struct sockaddr *) &sAddr, sizeof(sAddr))){
+		perror("I can\'t bind a socket!");
+		close(sockFD);
+		exit(EXIT_FAILURE);
+	}	
+	//прослушивание сокета.
+	if (-1 == listen(sockFD, MAXCON)){
+		perror("I can\'t listen a socket!");
+		close(sockFD);
+		exit(EXIT_FAILURE);
+	}
+	while (1){
+		//прём запроса.
+		printf("I'm listen...\n");
+		int connFD = accept(sockFD, NULL, NULL);
+		if(-1 == connFD){
+			perror("I can\'t accept a socket!");
+			close(sockFD);
+			exit(EXIT_FAILURE);
+		}	
+		int bytesRec = recvfrom(connFD, (void *) buffer, sizeof(buffer), MSG_WAITALL, (struct sockaddr *) &sAddr, &fromlen);
+		if (bytesRec < 0){
+			printf("I\'m here!");
+			fprintf(stderr, "%s\n", strerror(errno));
+			exit(EXIT_FAILURE);
+		}
+		printf("bytesRec: %d\n", bytesRec);
+		sleep(1);
+		printf("datagram: %.*s\n", (int) bytesRec, buffer);
+		//завершение приёма.
+		if(-1 == shutdown(connFD, SHUT_RDWR)){
+			perror("I can\'t shutdown a socket!");
+			close(connFD);
+			close(sockFD);
+			exit(EXIT_FAILURE);
+		}
+		close(connFD);
+	}
+	close(sockFD);
+	return 0;
+}

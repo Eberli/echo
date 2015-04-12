@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 2.8)
+
+set(PROJECT server)
+
+project(${PROJECT})			# Название проекта
+
+#set (HEADERS 
+#	trans.h)
+	 
+set (SOURCES 
+	client.cpp) 
+			 
+add_executable (${PROJECT} ${SOURCES})
