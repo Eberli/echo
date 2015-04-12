@@ -53,3 +53,7 @@ class Sockets{
 		char data_[1024];
 };
 
+bool isNotDigit(char symbol){
+	int i = static_cast<int>(symbol) - 48;
+	return (i >= 0 && i <= 9);
+}

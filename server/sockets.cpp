@@ -1,5 +1,14 @@
 #include "sockets.h"
 
+bool isNotDigit(char symbol){
+	int dig = static_cast<int>(symbol) - 48;
+	return (dig < 0 || dig > 9);
+}
+
+bool comp(int a, int b){
+	return (a > b) ? true : false;
+}
+
 Sockets::Sockets(): domain_(PF_INET), type_(SOCK_STREAM), protocol_(IPPROTO_TCP), port_(2504), sockFD_(-1), bytesRec_(0){
 	memset(&sAddr_, 0, sizeof(sAddr_));
 	sAddr_.sin_family = domain_;
@@ -132,45 +141,29 @@ int Sockets::procOfData(char* buf, int length){
 	for (int i = 0; i < length; i++){
 		v.push_back(buf[i]);
 	}
-	//найдём количество вхождений каждой цифры.
-	vector<int> countNumber;
-	for (int i = 0; i <= 9; i++){
-		int count = 0;
-		char c = i + '0';
-		for (int j = 0; j < v.size(); j++){
-			if(v[j] == c){
-				count++;
-			}
-		}
-		countNumber.push_back(count);
+	//выберем только цифры.	
+	v.erase(remove_if(v.begin(), v.end(), isNotDigit), v.end());
+	//преобразуем в числа.
+	vector<int> digit;
+	for(int i = 0; i < v.size(); i++){
+		digit.push_back(static_cast<int>(v[i]) - 48);
 	}
-	//найдём сумму цифр.
-	int summ = 0;
-	for (int i = 0; i < countNumber.size(); i++){
-		summ+=i*countNumber[i];
-	}	
-	cout << "Сумма цифр: " << summ << endl;
+	//Найдём сумму.
+	int summa = accumulate(digit.begin(), digit.end(), 0);
+	cout << "Сумма цифр: " << summa << endl;
 	//вывод в порядке убывания.
+	sort(digit.begin(), digit.end(), comp);
 	cout << "Цифры по убыванию: ";
-	for (int i = 9; i >= 0; i--){
-		for (int j = 0; j < countNumber[i]; j++){
-			cout << i;
-		}
+	for (int i = 0; i < digit.size(); i++){
+		cout<< digit[i];
 	}
 	cout << endl;
 	//максимальное значение.
-	int max = 10;
-	do {
-		max--; 
-	}
-	while (!countNumber[max]);
-	cout << "Максимальное значение: " << max << endl;
+	vector<int>::iterator iter;
+	iter = max_element(digit.begin(), digit.end());
+	cout << "Максимальное значение: " << *iter << endl;
 	//минимальное значение.
-	int min = -1;
-	do {
-		min++; 
-	}
-	while (!countNumber[min]);
-	cout << "Минимальное значение: " << min << endl;
-
+	iter = min_element(digit.begin(), digit.end());
+	cout << "Минимальное значение: " << *iter << endl;	
 }
+

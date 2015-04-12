@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <iostream>
-#include <vector>
+#include <algorithm>
 #include <thread>
 
 using namespace std;
@@ -52,3 +52,4 @@ class Sockets{
 		int bytesRec_;
 		char data_[1024];
 };
+
